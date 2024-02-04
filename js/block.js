@@ -2709,6 +2709,14 @@ class Block {
             if (that.name === "rest2") {
                 return;
             }
+        
+            if (
+                that.name === "vspace" &&
+                that.blocks.blockList[that.connections[1]]?.name === "rest2"
+              ) {
+                return;
+              }
+              
 
             if (window.hasMouse) {
                 moved = true;

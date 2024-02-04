@@ -1320,9 +1320,6 @@ class Blocks {
             }
 
             let thisBlockobj = this.blockList[thisBlock];
-            if (thisBlockobj.name === "vspace") {
-                return;
-            }
 
             thisBlockobj = this.blockList[thisBlock];
             if (thisBlockobj.name === "rest2") {
