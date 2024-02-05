@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2014-21 Walter Bender
+// Copyright (c) 2014-21 Walter Bender
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the The GNU Affero General Public
@@ -2709,14 +2709,24 @@ class Block {
             if (that.name === "rest2") {
                 return;
             }
-        
+
             if (
-                that.name === "vspace" &&
+                that?.name === "vspace" &&
                 that.blocks.blockList[that.connections[1]]?.name === "rest2"
               ) {
                 return;
               }
-              
+            
+            // Don't allow a stack of blocks to be moved if the stack contains a silence block
+            let block = that.blocks.blockList[that.connections[1]];
+            while (block != undefined) {
+                if (block?.name === "rest2") {
+                    console.log("getting returned")
+                    return;
+                }
+                block = block?.blocks.blockList[block.connections[1]];
+            }
+            
 
             if (window.hasMouse) {
                 moved = true;
