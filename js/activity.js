@@ -2174,6 +2174,7 @@ class Activity {
                     that.searchWidget.idInput_custom = ui.item.value;
                     that.searchWidget.protoblk = ui.item.specialDict;
                     that.doSearch();
+                    if (event.keyCode === 13) this.searchWidget.style.visibility = "visible";
                 },
                 focus: (event, ui) => {
                     event.preventDefault();
@@ -2402,7 +2403,6 @@ class Activity {
             const KEYCODE_DOWN = 40;
             const DEL = 46;
             const V = 86;
-            const ENTER = 13;
 
             // Shortcuts for creating new notes
             const KEYCODE_D = 68; // do
@@ -2456,7 +2456,10 @@ class Activity {
                         this._doFastButton();
                         break;
                     case 13: // 'R or ENTER'
-                        this.textMsg("ENter " + _("Play"));
+                        if (this.searchWidget.style.visibility === 'visible') {
+                            return;
+                        }
+                        this.textMsg("Enter " + _("Play"));
                         let stopbt = document.getElementById("stop");
                         if (stopbt) {
                             stopbt.style.color = platformColor.stopIconcolor;
@@ -3043,7 +3046,7 @@ class Activity {
             for (const name in this.palettes.dict) {
                 this.palettes.dict[name].hideMenu(true);
             }
-
+            
             this.blocks.activeBlock = null;
             this.refreshCanvas();
 
@@ -3135,6 +3138,18 @@ class Activity {
             this.refreshCanvas();
         };
 
+        this.handleKeyDown = (event) => {
+            
+            if (event.ctrlKey && event.key === "z") {
+                this._restoreTrash(activity);
+                activity.__tick();
+                event.preventDefault();
+            }
+        };
+
+        // Attach keydown event listener to document
+        document.addEventListener("keydown", this.handleKeyDown);
+
         /*
          * Open aux menu
          */
@@ -3154,6 +3169,18 @@ class Activity {
         this._showHideAuxMenu = (resize) => {
             const cellsize = 55;
             let dy;
+
+            // function to increase or decrease the "top" property of the top-right corner buttons
+
+            const topRightButtons = document.querySelectorAll("#buttoncontainerTOP .tooltipped");
+            const btnY = document.getElementById("Grid").getBoundingClientRect().top;
+
+            this.changeTopButtonsPosition = (value) => {
+                topRightButtons.forEach((child) => {
+                    child.style.top = `${btnY + value}px`;
+                });
+            };
+            
             if (!resize && this.toolbarHeight === 0) {
                 dy = cellsize + LEADING + 5;
                 this.toolbarHeight = dy;
@@ -3162,6 +3189,7 @@ class Activity {
                 this.turtles.deltaY(dy);
 
                 this.blocksContainer.y += dy;
+                this.changeTopButtonsPosition(dy);
                 this.blocks.checkBounds();
             } else {
                 dy = this.toolbarHeight;
@@ -3171,6 +3199,7 @@ class Activity {
                 this.turtles.deltaY(-dy);
 
                 this.blocksContainer.y -= dy;
+                this.changeTopButtonsPosition(-dy);
             }
 
             this.refreshCanvas();
